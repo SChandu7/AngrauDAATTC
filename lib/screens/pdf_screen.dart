@@ -1,17 +1,20 @@
 import 'dart:io';
+import 'package:angrauasr/services/pdf_cache_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PdfScreen extends StatefulWidget {
-  final String pdfPath; // asset or url
+  /// NOW this will be either:
+  /// 1) full S3 URL
+  /// 2) just filename like "andukorralu.pdf"
+  final String pdfPath;
   final String title;
 
-  PdfScreen({required this.pdfPath, required this.title});
+  const PdfScreen({required this.pdfPath, required this.title});
 
   @override
   _PdfScreenState createState() => _PdfScreenState();
@@ -23,12 +26,41 @@ class _PdfScreenState extends State<PdfScreen> {
   int totalPages = 0;
   int currentPage = 0;
 
-  Future<String> downloadFile(String url, String fileName) async {
+  /// CHANGE THIS ONLY IF BUCKET PATH CHANGES
+  static const String s3BaseUrl =
+      'https://djangotestcase.s3.ap-south-1.amazonaws.com/angraudaattcpdfs/';
+
+  /// App-private PDF directory
+  Future<Directory> _getPdfDir() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File("${dir.path}/$fileName");
+    final pdfDir = Directory('${dir.path}/pdfs');
+    if (!await pdfDir.exists()) {
+      await pdfDir.create(recursive: true);
+    }
+    return pdfDir;
+  }
 
-    if (await file.exists()) return file.path;
+  /// Download only ONCE
+  Future<String> _getOrDownloadPdf(String fileNameOrUrl) async {
+    final pdfDir = await _getPdfDir();
 
+    final fileName = fileNameOrUrl.startsWith('http')
+        ? fileNameOrUrl.split('/').last
+        : fileNameOrUrl;
+
+    final file = File('${pdfDir.path}/$fileName');
+
+    /// Already downloaded → use offline
+    if (await file.exists()) {
+      return file.path;
+    }
+
+    /// Build URL if only filename is provided
+    final url = fileNameOrUrl.startsWith('http')
+        ? fileNameOrUrl
+        : '$s3BaseUrl$fileName';
+
+    /// Download once
     await Dio().download(url, file.path);
     return file.path;
   }
@@ -36,29 +68,40 @@ class _PdfScreenState extends State<PdfScreen> {
   @override
   void initState() {
     super.initState();
-    preparePDF();
+    _preparePDF();
   }
 
-  preparePDF() async {
-    if (widget.pdfPath.startsWith("http")) {
-      // Network PDF download
-      localPath = await downloadFile(widget.pdfPath, "${widget.title}.pdf");
-    } else {
-      // Local asset load
-      final bytes = await rootBundle.load(widget.pdfPath);
-      final buffer = bytes.buffer;
-      Directory tempDir = await getTemporaryDirectory();
-      final tempFile = File("${tempDir.path}/${widget.title}.pdf");
+  double _progress = 0.0;
+  bool _downloading = false;
 
-      await tempFile.writeAsBytes(
-        buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
-        flush: true,
-      );
+  Future<void> _preparePDF() async {
+    final fileName = widget.pdfPath;
 
-      localPath = tempFile.path;
+    final file = await PdfCacheService.getLocalFile(fileName);
+
+    if (await file.exists()) {
+      localPath = file.path;
+      setState(() {});
+      return;
     }
 
-    setState(() {});
+    // Not downloaded → download with progress
+    setState(() {
+      _downloading = true;
+    });
+
+    final downloadedFile = await PdfCacheService.downloadSingle(
+      fileName,
+      onProgress: (p) {
+        setState(() => _progress = p);
+      },
+    );
+
+    localPath = downloadedFile.path;
+
+    setState(() {
+      _downloading = false;
+    });
   }
 
   @override
@@ -67,37 +110,63 @@ class _PdfScreenState extends State<PdfScreen> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-          // Page indicator
+          /// Page indicator
           Center(
             child: Padding(
-              padding: EdgeInsets.only(right: 15),
-              child: Text("${currentPage + 1}/$totalPages"),
+              padding: const EdgeInsets.only(right: 15),
+              child: Text('${currentPage + 1}/$totalPages'),
             ),
           ),
+
+          /// Download button (already downloaded, but keeps UX)
           IconButton(
-            icon: Icon(Icons.download),
+            icon: const Icon(Icons.download),
             onPressed: () async {
               await Permission.storage.request();
-              String savePath = localPath!;
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("PDF downloaded to $savePath")),
+                SnackBar(content: Text('PDF saved in app storage')),
               );
             },
           ),
+
+          /// Share button
           IconButton(
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
             onPressed: () async {
               if (localPath != null) {
                 await Share.shareXFiles([
                   XFile(localPath!),
-                ], text: "Sharing PDF - ${widget.title}");
+                ], text: 'Sharing PDF - ${widget.title}');
               }
             },
           ),
         ],
       ),
-      body: localPath == null
-          ? Center(child: CircularProgressIndicator())
+
+      body: _downloading
+          // 🔽 DOWNLOAD IN PROGRESS (NETWORK OR BACKGROUND)
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(value: _progress),
+                  const SizedBox(height: 12),
+                  Text(
+                    _progress == 0
+                        ? 'Preparing download...'
+                        : 'Downloading ${(100 * _progress).toInt()}%',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          // 📄 FILE READY BUT PDF NOT YET RENDERED
+          : localPath == null
+          ? const Center(child: CircularProgressIndicator())
+          // ✅ PDF VIEW
           : Stack(
               children: [
                 Hero(
@@ -106,7 +175,7 @@ class _PdfScreenState extends State<PdfScreen> {
                     filePath: localPath!,
                     enableSwipe: true,
                     swipeHorizontal: false,
-                    autoSpacing: false, // REMOVE SPACE
+                    autoSpacing: false,
                     pageSnap: false,
                     nightMode: false,
                     onRender: (pages) {
@@ -120,7 +189,9 @@ class _PdfScreenState extends State<PdfScreen> {
                     },
                   ),
                 ),
-                if (!isReady) Center(child: CircularProgressIndicator()),
+
+                // ⏳ PDF RENDERING OVERLAY
+                if (!isReady) const Center(child: CircularProgressIndicator()),
               ],
             ),
     );

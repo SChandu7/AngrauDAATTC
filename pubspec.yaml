@@ -2,7 +2,7 @@ name: angrauasr
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+19
 
 environment:
   sdk: ^3.8.1
@@ -19,16 +19,22 @@ dependencies:
   permission_handler: ^11.3.1
   dio: ^5.5.0
   url_launcher: ^6.2.5
-
+  archive: ^3.4.10
   share_plus: ^10.0.2
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
+  open_filex: ^4.4.0
+
 
   # Localization support
   flutter_localization: ^0.3.3
+  rename: ^3.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  rename: ^3.0.2
   flutter_native_splash: ^2.3.10
   flutter_launcher_icons: ^0.13.1
 
@@ -38,7 +44,6 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/pdfs/
     - assets/splash/splash.jpg
     
 
