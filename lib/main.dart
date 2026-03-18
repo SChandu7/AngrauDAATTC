@@ -3,7 +3,9 @@ import 'package:angrauasr/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '../services/pdf_zip_service.dart';
-
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(MyApp());
@@ -43,8 +45,6 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-
-
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -57,29 +57,45 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    trackAppVisit();
     _prepareOfflineData();
   }
 
+  final String _appName = "Angrau Daattc"; // ✅ change this per app
+  // "chandus7" / "app3" / "app4" etc.
+
+  Future<void> trackAppVisit() async {
+    try {
+      print("..............-----------------------------------------000");
+      await http.post(
+        Uri.parse("https://api.chandus7.in/api/track-visit/"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"app_name": _appName}),
+      );
+    } catch (e) {
+      print("Visit tracking failed: $e");
+    }
+  }
+
   Future<void> _prepareOfflineData() async {
-  // 🔹 Navigate after splash delay (NON-BLOCKING)
-  Future.delayed(const Duration(seconds: 2), () {
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => HomeScreen()),
+    // 🔹 Navigate after splash delay (NON-BLOCKING)
+    Future.delayed(const Duration(seconds: 8), () {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomeScreen()),
+      );
+    });
+
+    // 🔹 Start ZIP download in background
+    PdfZipService.downloadAndExtract(
+      onProgress: (p) {
+        if (mounted) {
+          setState(() => _progress = p);
+        }
+      },
     );
-  });
-
-  // 🔹 Start ZIP download in background
-  PdfZipService.downloadAndExtract(
-    onProgress: (p) {
-      if (mounted) {
-        setState(() => _progress = p);
-      }
-    },
-  );
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,27 +223,6 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
 
             /// 🔽 BOTTOM DOWNLOAD PROGRESS BAR
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Column(
-                children: [
-                  LinearProgressIndicator(
-                    value: _progress,
-                    minHeight: 6,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _progress == 0
-                        ? "Preparing offline content..."
-                        : "Downloading PDFs ${(100 * _progress).toInt()}%",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
