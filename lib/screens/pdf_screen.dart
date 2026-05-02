@@ -75,7 +75,11 @@ class _PdfScreenState extends State<PdfScreen> {
   bool _downloading = false;
 
   Future<void> _preparePDF() async {
+    print(widget.pdfPath);
     final fileName = widget.pdfPath;
+    print(fileName);
+      print("Requesting PDF: ${widget.pdfPath}"); // ← add this
+
 
     final file = await PdfCacheService.getLocalFile(fileName);
 

@@ -49,13 +49,7 @@ class PdfCacheService {
   }
 
   /// BACKGROUND download ALL (NO UI blocking)
-  static Future<void> downloadAllInBackground(
-    List<String> files,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final done = prefs.getBool(cacheFlag) ?? false;
-    if (done) return;
-
+  static Future<void> downloadAllInBackground(List<String> files) async {
     for (final file in files) {
       try {
         final f = await getLocalFile(file);
@@ -64,7 +58,7 @@ class PdfCacheService {
         }
       } catch (_) {}
     }
-
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(cacheFlag, true);
   }
 }

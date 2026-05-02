@@ -20,50 +20,45 @@ class PdfZipService {
   }
 
   static Future<void> downloadAndExtract({
-  required Function(double progress) onProgress,
-}) async {
-  final prefs = await SharedPreferences.getInstance();
-  final done = prefs.getBool(zipFlag) ?? false;
-  if (done) return;
+    required Function(double progress) onProgress,
+  }) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final zipFile = File('${dir.path}/pdfs.zip');
 
-  final dir = await getApplicationDocumentsDirectory();
-  final zipFile = File('${dir.path}/pdfs.zip');
+    /// Download ZIP
+    await Dio().download(
+      zipUrl,
+      zipFile.path,
+      onReceiveProgress: (rec, total) {
+        if (total > 0) onProgress(rec / total);
+      },
+    );
 
-  /// Download ZIP
-  await Dio().download(
-    zipUrl,
-    zipFile.path,
-    onReceiveProgress: (rec, total) {
-      if (total > 0) onProgress(rec / total);
-    },
-  );
+    /// Extract ZIP
+    final bytes = zipFile.readAsBytesSync();
+    final archive = ZipDecoder().decodeBytes(bytes);
 
-  /// Extract ZIP
-  final bytes = zipFile.readAsBytesSync();
-  final archive = ZipDecoder().decodeBytes(bytes);
+    final pdfDir = await _getPdfDir();
 
-  final pdfDir = await _getPdfDir();
+    for (final file in archive) {
+      if (file.isFile) {
+        final outFile = File('${pdfDir.path}/${file.name.split('/').last}');
 
-  for (final file in archive) {
-    if (file.isFile) {
-      final outFile =
-          File('${pdfDir.path}/${file.name.split('/').last}');
+        // ✅ DO NOT overwrite already-downloaded files
+        if (await outFile.exists()) {
+          continue;
+        }
 
-      // ✅ DO NOT overwrite already-downloaded files
-      if (await outFile.exists()) {
-        continue;
+        outFile
+          ..createSync(recursive: true)
+          ..writeAsBytesSync(file.content as List<int>);
       }
-
-      outFile
-        ..createSync(recursive: true)
-        ..writeAsBytesSync(file.content as List<int>);
     }
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool(zipFlag, true);
+
+    /// Optional: delete zip after extract
+    await zipFile.delete();
   }
-
-  await prefs.setBool(zipFlag, true);
-
-  /// Optional: delete zip after extract
-  await zipFile.delete();
-}
-
 }

@@ -9,7 +9,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/pdf_cache_service.dart';
 
-
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -24,25 +23,15 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "assets/images/sugarcrane.jpg",
       pdf: "sugarcrane.pdf",
     ),
-    Product(
-      nameKey: "rice",
-      image: "assets/images/rice.jpg",
-      pdf: "rice.pdf",
-    ),
+    Product(nameKey: "rice", image: "assets/images/rice.jpg", pdf: "rice.pdf"),
     Product(
       nameKey: "oilseed",
       image: "assets/images/oilseed.jpg",
       pdf: "",
       subOptions: [
-        SubOption(
-          optionNameKey: "GROUNDNUT",
-          optionPdf: "groundnut.pdf",
-        ),
+        SubOption(optionNameKey: "GROUNDNUT", optionPdf: "groundnut.pdf"),
         SubOption(optionNameKey: "SESAME", optionPdf: "sesame.pdf"),
-        SubOption(
-          optionNameKey: "SUNFLOWER",
-          optionPdf: "sunflower.pdf",
-        ),
+        SubOption(optionNameKey: "SUNFLOWER", optionPdf: "sunflower.pdf"),
         SubOption(optionNameKey: "Castor", optionPdf: "castor.pdf"),
         SubOption(optionNameKey: "Niger", optionPdf: "niger.pdf"),
         SubOption(optionNameKey: "Safflover", optionPdf: "safflover.pdf"),
@@ -63,14 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "assets/images/millete.jpg",
       pdf: "",
       subOptions: [
-        SubOption(
-          optionNameKey: "ANDUKORRALU",
-          optionPdf: "andukorralu.pdf",
-        ),
-        SubOption(
-          optionNameKey: "ARIKALU",
-          optionPdf: "arikalu.pdf",
-        ),
+        SubOption(optionNameKey: "ANDUKORRALU", optionPdf: "andukorralu.pdf"),
+        SubOption(optionNameKey: "ARIKALU", optionPdf: "arikalu.pdf"),
         SubOption(optionNameKey: "BAJRA", optionPdf: "bajra.pdf"),
         SubOption(optionNameKey: "JOWER", optionPdf: "jower.pdf"),
         SubOption(optionNameKey: "KORRA", optionPdf: "korra.pdf"),
@@ -86,22 +69,14 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "assets/images/pulses.jpg",
       pdf: "",
       subOptions: [
-        SubOption(
-          optionNameKey: "SOYABEAN",
-          optionPdf: "soyabean.pdf",
-        ),
-        SubOption(
-          optionNameKey: "REDGRAM",
-          optionPdf: "redgram.pdf",
-        ),
-        SubOption(
-          optionNameKey: "BENGALGRAM",
-          optionPdf: "bengalgram.pdf",
-        ),
+        SubOption(optionNameKey: "SOYABEAN", optionPdf: "soyabean.pdf"),
+        SubOption(optionNameKey: "REDGRAM", optionPdf: "redgram.pdf"),
+        SubOption(optionNameKey: "BENGALGRAM", optionPdf: "bengalgram.pdf"),
         SubOption(
           optionNameKey: "GREEN & BLACK GRAM",
           optionPdf: "redgramblackgram.pdf",
         ),
+        SubOption(optionNameKey: "RAJMASH", optionPdf: "rajmash.pdf"),
       ],
     ),
     Product(
@@ -124,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "assets/images/angrauicon.jpg",
       pdf: "angruv.pdf",
     ),
-     Product(
+    Product(
       nameKey: "Management Of SalineSoils",
       image: "assets/images/angrauicon.jpg",
       pdf: "saline.pdf",
@@ -137,28 +112,15 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "assets/images/sugarcrane.jpg",
       pdf: "sugarcrane2.pdf",
     ),
-    Product(
-      nameKey: "rice",
-      image: "assets/images/rice.jpg",
-      pdf: "rice2.pdf",
-    ),
+    Product(nameKey: "rice", image: "assets/images/rice.jpg", pdf: "rice2.pdf"),
     Product(
       nameKey: "oilseed",
       image: "assets/images/oilseed.jpg",
       pdf: "",
       subOptions: [
-        SubOption(
-          optionNameKey: "GROUNDNUT",
-          optionPdf: "groundnut2.pdf",
-        ),
-        SubOption(
-          optionNameKey: "SESAME",
-          optionPdf: "sesame2.pdf",
-        ),
-        SubOption(
-          optionNameKey: "SUNFLOWER",
-          optionPdf: "sunflower2.pdf",
-        ),
+        SubOption(optionNameKey: "GROUNDNUT", optionPdf: "groundnut2.pdf"),
+        SubOption(optionNameKey: "SESAME", optionPdf: "sesame2.pdf"),
+        SubOption(optionNameKey: "SUNFLOWER", optionPdf: "sunflower2.pdf"),
       ],
     ),
     Product(
@@ -182,18 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "assets/images/pulses.jpg",
       pdf: "",
       subOptions: [
-        SubOption(
-          optionNameKey: "REDGRAM",
-          optionPdf: "redgram2.pdf",
-        ),
-        SubOption(
-          optionNameKey: "GREENGRAM",
-          optionPdf: "greengram2.pdf",
-        ),
-        SubOption(
-          optionNameKey: "BLACKGRAM",
-          optionPdf: "blackgram2.pdf",
-        ),
+        SubOption(optionNameKey: "REDGRAM", optionPdf: "redgram2.pdf"),
+        SubOption(optionNameKey: "GREENGRAM", optionPdf: "greengram2.pdf"),
+        SubOption(optionNameKey: "BLACKGRAM", optionPdf: "blackgram2.pdf"),
       ],
     ),
     Product(
@@ -252,49 +205,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-List<String> getAllPdfFiles() {
-  final all = <String>[];
+  List<String> getAllPdfFiles() {
+    final all = <String>[];
 
-  for (final p in [...products, ...products2]) {
-    if (p.pdf.isNotEmpty) {
-      all.add(p.pdf);
+    for (final p in [...products, ...products2]) {
+      if (p.pdf.isNotEmpty) {
+        all.add(p.pdf);
+      }
+      p.subOptions?.forEach((s) {
+        all.add(s.optionPdf);
+      });
     }
-    p.subOptions?.forEach((s) {
-      all.add(s.optionPdf);
-    });
+
+    // Remove duplicates
+    return all.toSet().toList();
   }
-
-  // Remove duplicates
-  return all.toSet().toList();
-}
-
-
-
-
 
   Future<String> getPdfPath(String pdf, BuildContext context) async {
-  String lang = Localizations.localeOf(context).languageCode;
+    String lang = Localizations.localeOf(context).languageCode;
 
-  if (lang == "te") {
-    return pdf.replaceAll(".pdf", "2.pdf");
+    if (lang == "te") {
+      return pdf.replaceAll(".pdf", "2.pdf");
+    }
+
+    return pdf;
   }
 
-  return pdf;
-}
-
-
   @override
-void initState() {
-  super.initState();
-  
-  
+  void initState() {
+    super.initState();
+
     PdfCacheService.downloadAllInBackground(getAllPdfFiles());
-
-
-}
-
-
-
+  }
 
   @override
   Widget build(BuildContext context) {
