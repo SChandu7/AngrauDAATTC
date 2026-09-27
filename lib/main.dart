@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import '../services/pdf_zip_service.dart';
 import 'dart:io';
+import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -52,17 +53,44 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   double _progress = 0.0;
-  bool _downloading = true;
+  double _timerProgress = 0.0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     trackAppVisit();
     _prepareOfflineData();
+    _startTimerProgress();
   }
 
-  final String _appName = "Angrau Daattc"; // ✅ change this per app
-  // "chandus7" / "app3" / "app4" etc.
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimerProgress() {
+    const totalDuration = 5000;
+    const tickInterval = 50;
+    int elapsed = 0;
+
+    _timer = Timer.periodic(const Duration(milliseconds: tickInterval), (
+      timer,
+    ) {
+      elapsed += tickInterval;
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _timerProgress = (elapsed / totalDuration).clamp(0.0, 1.0);
+      });
+      if (elapsed >= totalDuration) timer.cancel();
+    });
+  }
+
+  final String _appName = "Angrau Daattc";
 
   Future<void> trackAppVisit() async {
     try {
@@ -78,8 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _prepareOfflineData() async {
-    // 🔹 Navigate after splash delay (NON-BLOCKING)
-    Future.delayed(const Duration(seconds: 8), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -87,7 +114,6 @@ class _SplashScreenState extends State<SplashScreen> {
       );
     });
 
-    // 🔹 Start ZIP download in background
     PdfZipService.downloadAndExtract(
       onProgress: (p) {
         if (mounted) {
@@ -186,7 +212,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         child: const Column(
                           children: [
                             Text(
-                              "Dr. P.B. Pradeep Kumar\nCoordinator & Scientist (T.O.T) DAATTC, PADERU, A.S.R. District.A.P.",
+                              "DR. P.B. PRADEEP KUMAR\nSENIOR SCIENTIST  & COORDINATOR,\n DAATTC-PADERU,ALLURI SITARAMARAJU DISTRICT\n ACHARYA N.G.RANGA AGRICULTURAL UNIVERSITY,GUNTUR,A.P.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 15,
@@ -194,23 +220,6 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                             ),
                             SizedBox(height: 10),
-                            Text(
-                              "Dr. A. Appalaswamy\nAssociate Director of Research, High Altitude...",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              "Dr. G. Sivanarayana\nDirector of Extension, ANGRAU",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -222,7 +231,49 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
 
-            /// 🔽 BOTTOM DOWNLOAD PROGRESS BAR
+            /// 🔽 BOTTOM LOADING PROGRESS BAR
+            /// 🔽 BOTTOM LOADING PROGRESS BAR
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    children: [
+                      // Gray background line
+                      Container(
+                        height: 4,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      // Blue filled line (progress)
+                      FractionallySizedBox(
+                        widthFactor: _timerProgress,
+                        child: Container(
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "Loading...",
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
