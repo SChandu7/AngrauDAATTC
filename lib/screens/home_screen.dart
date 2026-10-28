@@ -1,648 +1,307 @@
 import 'package:angrauasr/l10n/app_localizations.dart';
 import 'package:angrauasr/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import '../data/crop_catalog.dart';
 import '../models/product_model.dart';
+import '../screens/about_screen.dart';
 import '../screens/pdf_screen.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../services/contact_service.dart';
 import '../services/pdf_cache_service.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
-
-  List<Product> products = [
-    Product(
-      nameKey: "sugarcane",
-      image: "assets/images/sugarcrane.jpg",
-      pdf: "sugarcrane.pdf",
-    ),
-    Product(nameKey: "rice", image: "assets/images/rice.jpg", pdf: "rice.pdf"),
-    Product(
-      nameKey: "oilseed",
-      image: "assets/images/oilseed.jpg",
-      pdf: "",
-      subOptions: [
-        SubOption(optionNameKey: "GROUNDNUT", optionPdf: "groundnut.pdf"),
-        SubOption(optionNameKey: "SESAME", optionPdf: "sesame.pdf"),
-        SubOption(optionNameKey: "SUNFLOWER", optionPdf: "sunflower.pdf"),
-        SubOption(optionNameKey: "Castor", optionPdf: "castor.pdf"),
-        SubOption(optionNameKey: "Niger", optionPdf: "niger.pdf"),
-        SubOption(optionNameKey: "Safflover", optionPdf: "safflover.pdf"),
-      ],
-    ),
-    Product(
-      nameKey: "maize",
-      image: "assets/images/maize.jpg",
-      pdf: "maize.pdf",
-    ),
-    Product(
-      nameKey: "mesta",
-      image: "assets/images/mesta.jpg",
-      pdf: "mesta.pdf",
-    ),
-    Product(
-      nameKey: "millets",
-      image: "assets/images/millete.jpg",
-      pdf: "",
-      subOptions: [
-        SubOption(optionNameKey: "ANDUKORRALU", optionPdf: "andukorralu.pdf"),
-        SubOption(optionNameKey: "ARIKALU", optionPdf: "arikalu.pdf"),
-        SubOption(optionNameKey: "BAJRA", optionPdf: "bajra.pdf"),
-        SubOption(optionNameKey: "JOWER", optionPdf: "jower.pdf"),
-        SubOption(optionNameKey: "KORRA", optionPdf: "korra.pdf"),
-        SubOption(optionNameKey: "OODALU", optionPdf: "oodalu.pdf"),
-        SubOption(optionNameKey: "RAGI", optionPdf: "ragi.pdf"),
-        SubOption(optionNameKey: "SAMA", optionPdf: "sama.pdf"),
-        SubOption(optionNameKey: "VARIGA", optionPdf: "variga.pdf"),
-      ],
-    ),
-
-    Product(
-      nameKey: "pulses",
-      image: "assets/images/pulses.jpg",
-      pdf: "",
-      subOptions: [
-        SubOption(optionNameKey: "SOYABEAN", optionPdf: "soyabean.pdf"),
-        SubOption(optionNameKey: "REDGRAM", optionPdf: "redgram.pdf"),
-        SubOption(optionNameKey: "BENGALGRAM", optionPdf: "bengalgram.pdf"),
-        SubOption(
-          optionNameKey: "GREEN & BLACK GRAM",
-          optionPdf: "redgramblackgram.pdf",
-        ),
-        SubOption(optionNameKey: "RAJMASH", optionPdf: "rajmash.pdf"),
-      ],
-    ),
-    Product(
-      nameKey: "cotton",
-      image: "assets/images/cotton.jpg",
-      pdf: "cotton.pdf",
-    ),
-    Product(
-      nameKey: "BioFertilizers",
-      image: "assets/images/biofertilizers.jpg",
-      pdf: "liquid.pdf",
-    ),
-    Product(
-      nameKey: "BioControl",
-      image: "assets/images/biocontrol.jpg",
-      pdf: "biocontrol.pdf",
-    ),
-    Product(
-      nameKey: "IntegratedWeedManagement",
-      image: "assets/images/angrauicon.jpg",
-      pdf: "angruv.pdf",
-    ),
-    Product(
-      nameKey: "Management Of SalineSoils",
-      image: "assets/images/angrauicon.jpg",
-      pdf: "saline.pdf",
-    ),
-  ];
-
-  List<Product> products2 = [
-    Product(
-      nameKey: "sugarcane",
-      image: "assets/images/sugarcrane.jpg",
-      pdf: "sugarcrane2.pdf",
-    ),
-    Product(nameKey: "rice", image: "assets/images/rice.jpg", pdf: "rice2.pdf"),
-    Product(
-      nameKey: "oilseed",
-      image: "assets/images/oilseed.jpg",
-      pdf: "",
-      subOptions: [
-        SubOption(optionNameKey: "GROUNDNUT", optionPdf: "groundnut2.pdf"),
-        SubOption(optionNameKey: "SESAME", optionPdf: "sesame2.pdf"),
-        SubOption(optionNameKey: "SUNFLOWER", optionPdf: "sunflower2.pdf"),
-      ],
-    ),
-    Product(
-      nameKey: "maize",
-      image: "assets/images/maize.jpg",
-      pdf: "maize2.pdf",
-    ),
-    Product(
-      nameKey: "mesta",
-      image: "assets/images/mesta.jpg",
-      pdf: "mesta.pdf",
-    ),
-    Product(
-      nameKey: "millets",
-      image: "assets/images/millete.jpg",
-      pdf: "millets2.pdf",
-    ),
-
-    Product(
-      nameKey: "pulses",
-      image: "assets/images/pulses.jpg",
-      pdf: "",
-      subOptions: [
-        SubOption(optionNameKey: "REDGRAM", optionPdf: "redgram2.pdf"),
-        SubOption(optionNameKey: "GREENGRAM", optionPdf: "greengram2.pdf"),
-        SubOption(optionNameKey: "BLACKGRAM", optionPdf: "blackgram2.pdf"),
-      ],
-    ),
-    Product(
-      nameKey: "cotton",
-      image: "assets/images/cotton.jpg",
-      pdf: "cotton2.pdf",
-    ),
-    Product(
-      nameKey: "BioFertilizers",
-      image: "assets/images/biofertilizers.jpg",
-      pdf: "liquid.pdf",
-    ),
-    Product(
-      nameKey: "BioControl",
-      image: "assets/images/biocontrol.jpg",
-      pdf: "biocontrol.pdf",
-    ),
-    Product(
-      nameKey: "IntegratedWeed Management",
-      image: "assets/images/angrauicon.jpg",
-      pdf: "angruv.pdf",
-    ),
-  ];
-
-  List<Product> get currentProducts {
-    String lang = Localizations.localeOf(context).languageCode;
-    return lang == "te" ? products2 : products;
-  }
-
-  String getTranslatedValue(BuildContext context, String key) {
-    switch (key) {
-      case "sugarcane":
-        return AppLocalizations.of(context)!.sugarcrane;
-      case "rice":
-        return AppLocalizations.of(context)!.rice;
-      case "oilseed":
-        return AppLocalizations.of(context)!.oilseed;
-      case "maize":
-        return AppLocalizations.of(context)!.maize;
-      case "mesta":
-        return AppLocalizations.of(context)!.mesta;
-      case "millets":
-        return AppLocalizations.of(context)!.millets;
-      case "pulses":
-        return AppLocalizations.of(context)!.pulses;
-      case "cotton":
-        return AppLocalizations.of(context)!.cotton;
-      case "bioFertilizers":
-        return AppLocalizations.of(context)!.bioFertilizers;
-      case "bioControl":
-        return AppLocalizations.of(context)!.bioControl;
-      case "integratedWeedManagement":
-        return AppLocalizations.of(context)!.integratedWeedManagement;
-      default:
-        return key;
-    }
-  }
-
-  List<String> getAllPdfFiles() {
-    final all = <String>[];
-
-    for (final p in [...products, ...products2]) {
-      if (p.pdf.isNotEmpty) {
-        all.add(p.pdf);
-      }
-      p.subOptions?.forEach((s) {
-        all.add(s.optionPdf);
-      });
-    }
-
-    // Remove duplicates
-    return all.toSet().toList();
-  }
-
-  Future<String> getPdfPath(String pdf, BuildContext context) async {
-    String lang = Localizations.localeOf(context).languageCode;
-
-    if (lang == "te") {
-      return pdf.replaceAll(".pdf", "2.pdf");
-    }
-
-    return pdf;
-  }
-
   @override
   void initState() {
     super.initState();
+    // Save every guide on the phone in the background so they can be read
+    // offline later. Guides already saved are skipped.
+    PdfCacheService.downloadAll(CropCatalog.allPdfFiles());
+  }
 
-    PdfCacheService.downloadAllInBackground(getAllPdfFiles());
+  void _openGuide(String pdf, String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PdfScreen(pdfPath: pdf, title: title),
+      ),
+    );
+  }
+
+  void _openProduct(Product product, String lang) {
+    if (product.hasSubOptions) {
+      showDialog(
+        context: context,
+        builder: (_) => SubOptionPopup(
+          product: product,
+          languageCode: lang,
+          onSelected: (option) => _openGuide(option.pdf, option.name(lang)),
+        ),
+      );
+    } else {
+      _openGuide(product.pdf, product.name(lang));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
+    final l10n = AppLocalizations.of(context)!;
+    final lang = Localizations.localeOf(context).languageCode;
+    final products = CropCatalog.forLanguage(lang);
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.hiUser,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                  Spacer(),
-
-                  Container(
-                    height: 38,
-                    width: 140,
-                    padding: EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black, width: 1.4),
-                    ),
-                    child: Row(
+        child: CustomScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 0),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
                         Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              MyApp.setLocale(context, Locale('en'));
-                              setState(() {});
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        "en"
-                                    ? Colors.black
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "English",
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.appTitle,
                                 style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Localizations.localeOf(
-                                            context,
-                                          ).languageCode ==
-                                          "en"
-                                      ? Colors.white
-                                      : Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.green.shade800,
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              MyApp.setLocale(context, Locale('te'));
-                              setState(() {});
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        "te"
-                                    ? Colors.black
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                              Text(
+                                l10n.tagline,
+                                style: const TextStyle(color: Colors.grey),
                               ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                "తెలుగు",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      Localizations.localeOf(
-                                            context,
-                                          ).languageCode ==
-                                          "te"
-                                      ? Colors.white
-                                      : Colors.black,
-                                ),
-                              ),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              Text(
-                AppLocalizations.of(context)!.enjoyServices,
-                style: TextStyle(color: Colors.grey),
-              ),
-
-              SizedBox(height: 15),
-
-              Row(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.74,
-                    height: 47,
-
-                    child: TypeAheadField<Product>(
-                      suggestionsCallback: (pattern) {
-                        return currentProducts
-                            .where(
-                              (product) => getTranslatedValue(
-                                context,
-                                product.nameKey,
-                              ).toLowerCase().contains(pattern.toLowerCase()),
-                            )
-                            .toList();
-                      },
-                      builder: (context, controller, focusNode) {
-                        _searchController.value = controller.value;
-                        return TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(context)!.searchHint,
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        );
-                      },
-
-                      // LIMIT dropdown height so max 5 items
-                      decorationBuilder: (context, child) {
-                        return Material(
-                          elevation: 4,
-                          borderRadius: BorderRadius.circular(12),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: 250, // fits ~5 tiles then scrolls
-                            ),
-                            child: child,
-                          ),
-                        );
-                      },
-
-                      itemBuilder: (context, Product suggestion) {
-                        return ListTile(title: Text(suggestion.nameKey));
-                      },
-
-                      onSelected: (Product suggestion) async {
-                        String lang = Localizations.localeOf(
-                          context,
-                        ).languageCode;
-                        String selectedPdf;
-
-                        if (lang == "te") {
-                          selectedPdf = suggestion.pdf; // direct Telugu file
-                        } else {
-                          selectedPdf = await getPdfPath(
-                            suggestion.pdf,
-                            context,
-                          ); // English logic
-                        }
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PdfScreen(
-                              pdfPath: selectedPdf,
-                              title: suggestion.nameKey,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => FilterPopup(),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(Icons.tune, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 15),
-
-              Card(
-                elevation: 4,
-                shadowColor: Colors.black12,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    final Uri callUri = Uri(scheme: 'tel', path: '18004250430');
-                    launchUrl(callUri);
-                  },
-                  child: Container(
-                    height: 109,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: GestureDetector(
-                            onTap: () {
-                              final Uri callUri = Uri(
-                                scheme: 'tel',
-                                path: '18004250430',
-                              );
-                              launchUrl(callUri);
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.universityTollfree,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                    color: Color(0xFF0A9A4A), // Green as image
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                GestureDetector(
-                                  onTap: () async {
-                                    final Uri callUri = Uri(
-                                      scheme: 'tel',
-                                      path: '18004250430',
-                                    );
-                                    await launchUrl(callUri);
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.phone,
-                                        color: Colors.black,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 6),
-                                      Text(
-                                        "18004250430",
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Image.asset(
-                              "assets/images/callicon.jpg",
-                              height: 95,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 15),
-              Text(
-                AppLocalizations.of(context)!.featuredProducts,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-
-              SizedBox(height: 10),
-              Expanded(
-                child: GridView.builder(
-                  physics: BouncingScrollPhysics(), // enables scrolling
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.93,
-                    mainAxisSpacing: 30,
-                    crossAxisSpacing: 20,
-                  ),
-                  itemCount: currentProducts.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () async {
-                        if (currentProducts[index].subOptions == null ||
-                            currentProducts[index].subOptions!.isEmpty) {
-                          String lang = Localizations.localeOf(
-                            context,
-                          ).languageCode;
-                          String selectedPdf;
-
-                          if (lang == "te") {
-                            selectedPdf =
-                                currentProducts[index].pdf; // Telugu direct
-                          } else {
-                            selectedPdf = await getPdfPath(
-                              currentProducts[index].pdf,
-                              context,
-                            );
-                          }
-
-                          Navigator.push(
+                        IconButton(
+                          tooltip: l10n.about,
+                          icon: const Icon(Icons.info_outline),
+                          onPressed: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => PdfScreen(
-                                pdfPath: selectedPdf,
-                                title: getTranslatedValue(
-                                  context,
-                                  currentProducts[index].nameKey,
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                SubOptionPopup(product: currentProducts[index]),
-                          );
-                        }
-                      },
-
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.asset(
-                                currentProducts[index].image,
-                                fit: BoxFit.cover,
-                              ),
+                              builder: (_) => const AboutScreen(),
                             ),
                           ),
-                          SizedBox(height: 5),
-                          Container(
-                            width: double.infinity, // full width
-                            padding: EdgeInsets.symmetric(vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.black, // background full width
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(12),
-                                bottomRight: Radius.circular(12),
-                              ),
-                            ),
-                            child: Text(
-                              getTranslatedValue(
-                                context,
-                                currentProducts[index].nameKey,
-                              ),
-
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _LanguageToggle(languageCode: lang),
+                    const SizedBox(height: 15),
+                    _GuideSearchField(
+                      languageCode: lang,
+                      onSelected: (g) => _openGuide(g.pdf, g.title),
+                    ),
+                    const SizedBox(height: 15),
+                    const _HelplineCard(),
+                    const SizedBox(height: 15),
+                    Text(
+                      l10n.cropGuides,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.85,
+                  mainAxisSpacing: 20,
+                  crossAxisSpacing: 20,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _ProductTile(
+                    product: products[index],
+                    languageCode: lang,
+                    onTap: () => _openProduct(products[index], lang),
+                  ),
+                  childCount: products.length,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageToggle extends StatelessWidget {
+  final String languageCode;
+
+  const _LanguageToggle({required this.languageCode});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: SegmentedButton<String>(
+        showSelectedIcon: false,
+        style: SegmentedButton.styleFrom(
+          selectedBackgroundColor: Colors.black,
+          selectedForegroundColor: Colors.white,
+        ),
+        segments: const [
+          ButtonSegment(value: 'en', label: Text('English')),
+          ButtonSegment(value: 'te', label: Text('తెలుగు')),
+        ],
+        selected: {languageCode},
+        onSelectionChanged: (s) => MyApp.setLocale(context, Locale(s.first)),
+      ),
+    );
+  }
+}
+
+class _GuideSearchField extends StatelessWidget {
+  final String languageCode;
+  final ValueChanged<Guide> onSelected;
+
+  const _GuideSearchField({required this.languageCode, required this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return TypeAheadField<Guide>(
+      // Rebuild the suggestions when the language changes.
+      key: ValueKey(languageCode),
+      hideOnEmpty: false,
+      suggestionsCallback: (pattern) {
+        final query = pattern.trim().toLowerCase();
+        if (query.isEmpty) return const <Guide>[];
+        return CropCatalog.guides(languageCode)
+            .where(
+              (g) =>
+                  g.title.toLowerCase().contains(query) ||
+                  g.subtitle.toLowerCase().contains(query),
+            )
+            .toList();
+      },
+      builder: (context, controller, focusNode) {
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: l10n.searchHint,
+            prefixIcon: const Icon(Icons.search),
+            isDense: true,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        );
+      },
+      decorationBuilder: (context, child) {
+        return Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(12),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 250),
+            child: child,
+          ),
+        );
+      },
+      emptyBuilder: (context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(l10n.noResults),
+      ),
+      itemBuilder: (context, guide) {
+        return ListTile(
+          leading: const Icon(Icons.menu_book_outlined),
+          title: Text(guide.title),
+          subtitle: guide.subtitle.isEmpty ? null : Text(guide.subtitle),
+        );
+      },
+      onSelected: (guide) {
+        FocusScope.of(context).unfocus();
+        onSelected(guide);
+      },
+    );
+  }
+}
+
+class _HelplineCard extends StatelessWidget {
+  const _HelplineCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black12,
+      color: Colors.white,
+      surfaceTintColor: Colors.white,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: InkWell(
+        onTap: () => ContactService.callHelpline(context),
+        child: Container(
+          height: 109,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      l10n.universityTollfree,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF0A9A4A),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Icon(Icons.phone, color: Colors.black, size: 16),
+                        SizedBox(width: 6),
+                        Text(
+                          ContactService.helplineDisplay,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Image.asset(
+                    "assets/images/callicon.jpg",
+                    height: 95,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ],
@@ -653,89 +312,58 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class FilterPopup extends StatefulWidget {
-  @override
-  _FilterPopupState createState() => _FilterPopupState();
-}
+class _ProductTile extends StatelessWidget {
+  final Product product;
+  final String languageCode;
+  final VoidCallback onTap;
 
-class _FilterPopupState extends State<FilterPopup> {
-  bool seeds = false;
-  bool products = false;
-  bool fertilizers = false;
-  bool others = false;
+  const _ProductTile({
+    required this.product,
+    required this.languageCode,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        padding: EdgeInsets.all(16),
-        width: 280,
+    return Semantics(
+      button: true,
+      label: product.name(languageCode),
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "Filter Options",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(8),
+                ),
+                child: Image.asset(
+                  product.image,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-            SizedBox(height: 15),
-
-            /// 2 x 2 GRID CHECKBOXES
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              childAspectRatio: 3.8,
-              children: [
-                Row(
-                  children: [
-                    Checkbox(
-                      value: seeds,
-                      onChanged: (v) => setState(() => seeds = v!),
-                    ),
-                    Text("Seeds"),
-                  ],
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+              decoration: const BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(12),
                 ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: products,
-                      onChanged: (v) => setState(() => products = v!),
-                    ),
-                    Text("Products"),
-                  ],
+              ),
+              child: Text(
+                product.name(languageCode),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: fertilizers,
-                      onChanged: (v) => setState(() => fertilizers = v!),
-                    ),
-                    Text("Fertilizers"),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: others,
-                      onChanged: (v) => setState(() => others = v!),
-                    ),
-                    Text("Others"),
-                  ],
-                ),
-              ],
-            ),
-
-            SizedBox(height: 12),
-
-            /// SMALL OK BUTTON
-            SizedBox(
-              height: 34,
-              width: 80,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: Text("OK", style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -747,108 +375,69 @@ class _FilterPopupState extends State<FilterPopup> {
 
 class SubOptionPopup extends StatelessWidget {
   final Product product;
+  final String languageCode;
+  final ValueChanged<SubOption> onSelected;
 
-  const SubOptionPopup({required this.product});
+  const SubOptionPopup({
+    super.key,
+    required this.product,
+    required this.languageCode,
+    required this.onSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final options = product.subOptions!;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Select Type",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-
-            ...product.subOptions!.asMap().entries.map((entry) {
-              int index = entry.key;
-              var option = entry.value;
-
-              return Column(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PdfScreen(
-                            pdfPath: option.optionPdf,
-                            title: option.optionNameKey,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          getTranslatedValue(context, option.optionNameKey),
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        Icon(Icons.arrow_forward_ios, size: 16),
-                      ],
-                    ),
-                  ),
-
-                  // DIVIDER CENTERED
-                  if (index != product.subOptions!.length - 1)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Center(
-                        child: Container(
-                          width: 250, // adjust width size here
-                          height: 1.4,
-                          color: Colors.grey.withOpacity(0.4),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            }).toList(),
-
-            SizedBox(height: 10),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel", style: TextStyle(fontSize: 14)),
-            ),
-          ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                product.name(languageCode),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(l10n.selectCrop, style: const TextStyle(color: Colors.grey)),
+              const SizedBox(height: 6),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  separatorBuilder: (_, _) =>
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+                  itemBuilder: (context, index) {
+                    final option = options[index];
+                    return ListTile(
+                      title: Text(option.name(languageCode)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.pop(context);
+                        onSelected(option);
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 6),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  String getTranslatedValue(BuildContext context, String key) {
-    switch (key) {
-      case "sugarcane":
-        return AppLocalizations.of(context)!.sugarcrane;
-      case "rice":
-        return AppLocalizations.of(context)!.rice;
-      case "oilseed":
-        return AppLocalizations.of(context)!.oilseed;
-      case "maize":
-        return AppLocalizations.of(context)!.maize;
-      case "mesta":
-        return AppLocalizations.of(context)!.mesta;
-      case "millets":
-        return AppLocalizations.of(context)!.millets;
-      case "pulses":
-        return AppLocalizations.of(context)!.pulses;
-      case "cotton":
-        return AppLocalizations.of(context)!.cotton;
-      case "bioFertilizers":
-        return AppLocalizations.of(context)!.bioFertilizers;
-      case "bioControl":
-        return AppLocalizations.of(context)!.bioControl;
-      case "integratedWeedManagement":
-        return AppLocalizations.of(context)!.integratedWeedManagement;
-      default:
-        return key;
-    }
   }
 }

@@ -1,19 +1,61 @@
 {
-  "hiUser": "Hi Wilson 👋",
-  "enjoyServices": "Enjoy our services!",
-  "featuredProducts": "Featured Products",
-  "universityTollfree": "University\nTollfree No.",
-  "searchHint": "Search",
-
-  "sugarcrane": "Sugarcane",
-  "rice": "Rice",
-  "oilseed": "Oilseed",
-  "maize": "Maize",
-  "mesta": "Mesta",
-  "millets": "Millets",
-  "pulses": "Pulses",
-  "cotton": "Cotton",
-  "bioFertilizers": "BioFertilizers",
-  "bioControl": "BioControl",
-  "integratedWeedManagement": "IntegratedWeed Management"
+  "@@locale": "en",
+  "appTitle": "ANGRAU DAATTC",
+  "tagline": "Crop production guides for farmers",
+  "cropGuides": "Crop Guides",
+  "universityTollfree": "University\nToll-free No.",
+  "searchHint": "Search crops",
+  "noResults": "No matching crops",
+  "selectCrop": "Select a crop",
+  "cancel": "Cancel",
+  "close": "Close",
+  "about": "About",
+  "loading": "Loading...",
+  "preparingGuide": "Preparing guide...",
+  "downloadingPercent": "Downloading {percent}%",
+  "@downloadingPercent": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "loadFailed": "Could not load this guide. Check your internet connection and try again.",
+  "retry": "Try again",
+  "share": "Share",
+  "pageOf": "{page} / {total}",
+  "@pageOf": {
+    "placeholders": {
+      "page": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "callNotAvailable": "Calling is not available on this device. Please call {number} from a phone.",
+  "@callNotAvailable": {
+    "placeholders": {
+      "number": {"type": "String"}
+    }
+  },
+  "aboutBody": "ANGRAU DAATTC brings the crop production guides of Acharya N.G. Ranga Agricultural University to farmers in English and Telugu. Each guide covers varieties, sowing, nutrient, water, weed, pest and disease management for the crop.",
+  "offlineTitle": "Offline reading",
+  "offlineStatus": "{saved} of {total} guides saved on this phone",
+  "@offlineStatus": {
+    "placeholders": {
+      "saved": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "downloadAll": "Download all guides",
+  "downloadingAll": "Downloading guides...",
+  "allSaved": "All guides are saved. You can read them without internet.",
+  "developedBy": "Developed by",
+  "developerCredit": "Dr. P.B. Pradeep Kumar\nSenior Scientist & Coordinator,\nDAATTC, Paderu, Alluri Sitharama Raju District\nAcharya N.G. Ranga Agricultural University, Guntur, A.P.",
+  "helpline": "University toll-free helpline",
+  "universityWebsite": "University website",
+  "privacyPolicy": "Privacy policy",
+  "contactSupport": "Support",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  }
 }

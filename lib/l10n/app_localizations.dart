@@ -62,7 +62,8 @@ import 'app_localizations_te.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,117 +84,209 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('te')
+    Locale('te'),
   ];
 
-  /// No description provided for @hiUser.
+  /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Hi Wilson 👋'**
-  String get hiUser;
+  /// **'ANGRAU DAATTC'**
+  String get appTitle;
 
-  /// No description provided for @enjoyServices.
+  /// No description provided for @tagline.
   ///
   /// In en, this message translates to:
-  /// **'Enjoy our services!'**
-  String get enjoyServices;
+  /// **'Crop production guides for farmers'**
+  String get tagline;
 
-  /// No description provided for @featuredProducts.
+  /// No description provided for @cropGuides.
   ///
   /// In en, this message translates to:
-  /// **'Featured Products'**
-  String get featuredProducts;
+  /// **'Crop Guides'**
+  String get cropGuides;
 
   /// No description provided for @universityTollfree.
   ///
   /// In en, this message translates to:
-  /// **'University\nTollfree No.'**
+  /// **'University\nToll-free No.'**
   String get universityTollfree;
 
   /// No description provided for @searchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search'**
+  /// **'Search crops'**
   String get searchHint;
 
-  /// No description provided for @sugarcrane.
+  /// No description provided for @noResults.
   ///
   /// In en, this message translates to:
-  /// **'Sugarcane'**
-  String get sugarcrane;
+  /// **'No matching crops'**
+  String get noResults;
 
-  /// No description provided for @rice.
+  /// No description provided for @selectCrop.
   ///
   /// In en, this message translates to:
-  /// **'Rice'**
-  String get rice;
+  /// **'Select a crop'**
+  String get selectCrop;
 
-  /// No description provided for @oilseed.
+  /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
-  /// **'Oilseed'**
-  String get oilseed;
+  /// **'Cancel'**
+  String get cancel;
 
-  /// No description provided for @maize.
+  /// No description provided for @close.
   ///
   /// In en, this message translates to:
-  /// **'Maize'**
-  String get maize;
+  /// **'Close'**
+  String get close;
 
-  /// No description provided for @mesta.
+  /// No description provided for @about.
   ///
   /// In en, this message translates to:
-  /// **'Mesta'**
-  String get mesta;
+  /// **'About'**
+  String get about;
 
-  /// No description provided for @millets.
+  /// No description provided for @loading.
   ///
   /// In en, this message translates to:
-  /// **'Millets'**
-  String get millets;
+  /// **'Loading...'**
+  String get loading;
 
-  /// No description provided for @pulses.
+  /// No description provided for @preparingGuide.
   ///
   /// In en, this message translates to:
-  /// **'Pulses'**
-  String get pulses;
+  /// **'Preparing guide...'**
+  String get preparingGuide;
 
-  /// No description provided for @cotton.
+  /// No description provided for @downloadingPercent.
   ///
   /// In en, this message translates to:
-  /// **'Cotton'**
-  String get cotton;
+  /// **'Downloading {percent}%'**
+  String downloadingPercent(int percent);
 
-  /// No description provided for @bioFertilizers.
+  /// No description provided for @loadFailed.
   ///
   /// In en, this message translates to:
-  /// **'BioFertilizers'**
-  String get bioFertilizers;
+  /// **'Could not load this guide. Check your internet connection and try again.'**
+  String get loadFailed;
 
-  /// No description provided for @bioControl.
+  /// No description provided for @retry.
   ///
   /// In en, this message translates to:
-  /// **'BioControl'**
-  String get bioControl;
+  /// **'Try again'**
+  String get retry;
 
-  /// No description provided for @integratedWeedManagement.
+  /// No description provided for @share.
   ///
   /// In en, this message translates to:
-  /// **'IntegratedWeed Management'**
-  String get integratedWeedManagement;
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @pageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} / {total}'**
+  String pageOf(int page, int total);
+
+  /// No description provided for @callNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Calling is not available on this device. Please call {number} from a phone.'**
+  String callNotAvailable(String number);
+
+  /// No description provided for @aboutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'ANGRAU DAATTC brings the crop production guides of Acharya N.G. Ranga Agricultural University to farmers in English and Telugu. Each guide covers varieties, sowing, nutrient, water, weed, pest and disease management for the crop.'**
+  String get aboutBody;
+
+  /// No description provided for @offlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline reading'**
+  String get offlineTitle;
+
+  /// No description provided for @offlineStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'{saved} of {total} guides saved on this phone'**
+  String offlineStatus(int saved, int total);
+
+  /// No description provided for @downloadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Download all guides'**
+  String get downloadAll;
+
+  /// No description provided for @downloadingAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading guides...'**
+  String get downloadingAll;
+
+  /// No description provided for @allSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'All guides are saved. You can read them without internet.'**
+  String get allSaved;
+
+  /// No description provided for @developedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developed by'**
+  String get developedBy;
+
+  /// No description provided for @developerCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Dr. P.B. Pradeep Kumar\nSenior Scientist & Coordinator,\nDAATTC, Paderu, Alluri Sitharama Raju District\nAcharya N.G. Ranga Agricultural University, Guntur, A.P.'**
+  String get developerCredit;
+
+  /// No description provided for @helpline.
+  ///
+  /// In en, this message translates to:
+  /// **'University toll-free helpline'**
+  String get helpline;
+
+  /// No description provided for @universityWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'University website'**
+  String get universityWebsite;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get contactSupport;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String version(String version);
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -201,25 +295,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'te'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'te'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'te': return AppLocalizationsTe();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'te':
+      return AppLocalizationsTe();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

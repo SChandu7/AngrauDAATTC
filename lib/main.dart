@@ -1,58 +1,92 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:angrauasr/l10n/app_localizations.dart';
 import 'package:angrauasr/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import '../services/pdf_zip_service.dart';
-import 'dart:io';
-import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
+const String _localeKey = 'app_locale';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // The language chosen last time; on first launch, Telugu if the phone is
+  // set to Telugu, otherwise English.
+  String code = PlatformDispatcher.instance.locale.languageCode == 'te'
+      ? 'te'
+      : 'en';
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    code = prefs.getString(_localeKey) ?? code;
+  } catch (_) {}
+
+  runApp(MyApp(initialLocale: Locale(code)));
 }
 
 class MyApp extends StatefulWidget {
+  final Locale initialLocale;
+
+  const MyApp({super.key, required this.initialLocale});
+
   static void setLocale(BuildContext context, Locale newLocale) {
-    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    final state = context.findAncestorStateOfType<_MyAppState>();
     state?.setLocale(newLocale);
   }
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale = Locale('en');
+  late Locale _locale = widget.initialLocale;
 
   void setLocale(Locale locale) {
     setState(() => _locale = locale);
+    SharedPreferences.getInstance()
+        .then((prefs) => prefs.setString(_localeKey, locale.languageCode))
+        .catchError((_) => false);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'ANGRAU DAATTC',
       locale: _locale,
-      supportedLocales: [Locale('en'), Locale('te')],
-      localizationsDelegates: [
+      supportedLocales: const [Locale('en'), Locale('te')],
+      localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green.shade800),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.green.shade800,
+          foregroundColor: Colors.white,
+        ),
+      ),
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  double _progress = 0.0;
+  static const _splashDuration = Duration(milliseconds: 2500);
+
   double _timerProgress = 0.0;
   Timer? _timer;
 
@@ -60,7 +94,6 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     trackAppVisit();
-    _prepareOfflineData();
     _startTimerProgress();
   }
 
@@ -71,7 +104,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _startTimerProgress() {
-    const totalDuration = 5000;
     const tickInterval = 50;
     int elapsed = 0;
 
@@ -84,68 +116,62 @@ class _SplashScreenState extends State<SplashScreen> {
         return;
       }
       setState(() {
-        _timerProgress = (elapsed / totalDuration).clamp(0.0, 1.0);
+        _timerProgress = (elapsed / _splashDuration.inMilliseconds).clamp(
+          0.0,
+          1.0,
+        );
       });
-      if (elapsed >= totalDuration) timer.cancel();
+      if (elapsed >= _splashDuration.inMilliseconds) {
+        timer.cancel();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
     });
   }
 
   final String _appName = "Angrau Daattc";
 
+  /// Counts app opens per app name on the server. Nothing about the user or
+  /// the device is sent.
   Future<void> trackAppVisit() async {
     try {
-      print("..............-----------------------------------------000");
-      await http.post(
-        Uri.parse("https://api.chandus7.in/api/track-visit/"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"app_name": _appName}),
-      );
-    } catch (e) {
-      print("Visit tracking failed: $e");
-    }
-  }
-
-  Future<void> _prepareOfflineData() async {
-    Future.delayed(const Duration(seconds: 5), () {
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-      );
-    });
-
-    PdfZipService.downloadAndExtract(
-      onProgress: (p) {
-        if (mounted) {
-          setState(() => _progress = p);
-        }
-      },
-    );
+      await http
+          .post(
+            Uri.parse("https://api.chandus7.in/api/track-visit/"),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({"app_name": _appName}),
+          )
+          .timeout(const Duration(seconds: 10));
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final green = Colors.green.shade800;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            /// MAIN CONTENT (UNCHANGED)
             Expanded(
               child: Center(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 25),
-
                       Text(
-                        "ACHARYA N.G RANGA",
+                        "ACHARYA N.G. RANGA",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
+                          color: green,
                         ),
                       ),
                       Text(
@@ -154,7 +180,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
+                          color: green,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -164,66 +190,50 @@ class _SplashScreenState extends State<SplashScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: Colors.green.shade800,
+                          color: green,
                         ),
                       ),
-
                       const SizedBox(height: 18),
-
                       Image.asset(
                         "assets/images/angrauicon.jpg",
                         width: MediaQuery.of(context).size.width * 0.45,
                         fit: BoxFit.contain,
                       ),
-
                       const SizedBox(height: 10),
                       Text(
-                        "ANGRAU",
+                        "ANGRAU DAATTC",
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
+                          color: green,
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       Text(
-                        "Developed by",
+                        l10n.developedBy,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
+                          color: green,
                         ),
                       ),
-
                       const SizedBox(height: 12),
-
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.93,
+                        width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: Colors.green.shade800,
-                            width: 2,
+                          border: Border.all(color: green, width: 2),
+                        ),
+                        child: Text(
+                          l10n.developerCredit,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: const Column(
-                          children: [
-                            Text(
-                              "DR. P.B. PRADEEP KUMAR\nSENIOR SCIENTIST  & COORDINATOR,\n DAATTC-PADERU,ALLURI SITARAMARAJU DISTRICT\n ACHARYA N.G.RANGA AGRICULTURAL UNIVERSITY,GUNTUR,A.P.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                          ],
-                        ),
                       ),
-
                       const SizedBox(height: 30),
                     ],
                   ),
@@ -231,44 +241,27 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
 
-            /// 🔽 BOTTOM LOADING PROGRESS BAR
-            /// 🔽 BOTTOM LOADING PROGRESS BAR
+            /// Bottom loading bar
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Stack(
-                    children: [
-                      // Gray background line
-                      Container(
-                        height: 4,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      // Blue filled line (progress)
-                      FractionallySizedBox(
-                        widthFactor: _timerProgress,
-                        child: Container(
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ],
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: _timerProgress,
+                      minHeight: 4,
+                      color: green,
+                      backgroundColor: Colors.grey.shade300,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    "Loading...",
+                    l10n.loading,
                     style: TextStyle(
                       fontSize: 11,
-                      color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w400,
+                      color: Colors.grey.shade600,
                     ),
                   ),
                 ],
